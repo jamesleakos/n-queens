@@ -41,6 +41,13 @@
       return this.hasAnyRowConflicts() || this.hasAnyColConflicts();
     },
 
+    hasAnyRookConflictsOn: function (rowIndex, colIndex) {
+      return (
+        this.hasRowConflictAt(rowIndex),
+        this.hasColConflictAt(colIndex)
+      );
+    },
+
     hasAnyQueenConflictsOn: function(rowIndex, colIndex) {
       return (
         this.hasRowConflictAt(rowIndex) ||
@@ -79,30 +86,38 @@
     //
     // test if a specific row on this board contains a conflict
     hasRowConflictAt: function(rowIndex) {
-      return false; // fixme
+      let sum = this.rows()[rowIndex].reduce((acc, a) => acc + a, 0);
+      return sum > 1;
     },
 
     // test if any rows on this board contain conflicts
     hasAnyRowConflicts: function() {
+      for (let i = 0; i < this.get('n'); i++) {
+        let sum = this.rows()[i].reduce((acc, a) => acc + a, 0);
+        if (sum > 1) { return true; }
+      }
       return false; // fixme
     },
-
-
 
     // COLUMNS - run from top to bottom
     // --------------------------------------------------------------
     //
     // test if a specific column on this board contains a conflict
     hasColConflictAt: function(colIndex) {
-      return false; // fixme
+      var rows = this.rows();
+      let sum = rows.reduce((acc, row) => acc + row[colIndex], 0);
+      return sum > 1;
     },
 
     // test if any columns on this board contain conflicts
     hasAnyColConflicts: function() {
+      var rows = this.rows();
+      for (let i = 0; i < this.get('n'); i++) {
+        let sum = rows.reduce((acc, row) => acc + row[i], 0);
+        if (sum > 1) { return true; }
+      }
       return false; // fixme
     },
-
-
 
     // Major Diagonals - go from top-left to bottom-right
     // --------------------------------------------------------------
@@ -116,8 +131,6 @@
     hasAnyMajorDiagonalConflicts: function() {
       return false; // fixme
     },
-
-
 
     // Minor Diagonals - go from top-right to bottom-left
     // --------------------------------------------------------------
