@@ -18,43 +18,20 @@
 window.findNRooksSolution = function(n) {
   // var solutions = []; //fixme
   var testBoard = new Board({n: n});
+  var solutions = [];
 
-  var iterateRow = function (rowIndex, hasConflictCB) {
-    for (var i = 0; i < n; i++) {
-      testBoard.togglePiece(rowIndex, i);
-      if (!hasConflictCB(rowIndex, i)) {
-        if (rowIndex === n - 1) {
-          return testBoard.rows();
-        } else {
-          return iterateRow(rowIndex + 1, hasConflictCB);
-        }
-      }
-      testBoard.togglePiece(rowIndex, i);
-    }
-  };
-  return iterateRow(0, testBoard.hasAnyRookConflictsOn.bind(testBoard));
+  iterateRow(0, n, testBoard, solutions, testBoard.hasAnyRookConflictsOn.bind(testBoard));
+  return solutions[0];
 };
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
   var count = 0;
   var testBoard = new Board({n: n});
+  var solutions = [];
 
-  var iterateRow = function (rowIndex, hasConflictCB) {
-    for (var i = 0; i < n; i++) {
-      testBoard.togglePiece(rowIndex, i);
-      if (!hasConflictCB(rowIndex, i)) {
-        if (rowIndex === n - 1) {
-          count++;
-        } else {
-          iterateRow(rowIndex + 1, hasConflictCB);
-        }
-      }
-      testBoard.togglePiece(rowIndex, i);
-    }
-  };
-  iterateRow(0, testBoard.hasAnyRookConflictsOn.bind(testBoard));
-  return count;
+  iterateRow(0, n, testBoard, solutions, testBoard.hasAnyRookConflictsOn.bind(testBoard));
+  return solutions.length;
 };
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
@@ -63,127 +40,35 @@ window.findNQueensSolution = function(n) {
   var solutions = [];
   var testBoard = new Board({n: n});
 
-  var iterateRow = function (rowIndex) {
-    for (var i = 0; i < n; i++) {
-      testBoard.togglePiece(rowIndex, i);
-      if (!testBoard.hasAnyQueenConflictsOn(rowIndex, i)) {
-        if (rowIndex === n - 1) {
-          solutions.push(testBoard.rows().map(function(arr) {
-            return arr.slice();
-          }));
-        } else {
-          iterateRow(rowIndex + 1);
-        }
-      }
-      testBoard.togglePiece(rowIndex, i);
-    }
-  };
-  iterateRow(0);
+  iterateRow(0, n, testBoard, solutions, testBoard.hasAnyQueenConflictsOn.bind(testBoard));
   if (solutions.length === 0) { return new Board({n: n}).rows(); }
   return solutions[0];
 };
 
-// return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
+// second for testing
 window.countNQueensSolutions = function(n) {
   if (n === 0) { return 1; }
-  var solutions = [];
   var testBoard = new Board({n: n});
+  var solutions = [];
 
-  var iterateRow = function (rowIndex) {
-    for (var i = 0; i < n; i++) {
-      testBoard.togglePiece(rowIndex, i);
-      if (!testBoard.hasAnyQueenConflictsOn(rowIndex, i)) {
-        if (rowIndex === n - 1) {
-          solutions.push(testBoard.rows().map(function(arr) {
-            return arr.slice();
-          }));
-        } else {
-          iterateRow(rowIndex + 1);
-        }
-      }
-      testBoard.togglePiece(rowIndex, i);
-    }
-  };
-  iterateRow(0);
+  iterateRow(0, n, testBoard, solutions, testBoard.hasAnyQueenConflictsOn.bind(testBoard));
   return solutions.length;
 };
 
-window.findAllRookSolutions = function (n) {
-  var solutions = [];
-  var testBoard = new Board({n: n});
-
-  var iterateRow = function (rowIndex) {
-    for (var i = 0; i < n; i++) {
-      testBoard.togglePiece(rowIndex, i);
-      if (!testBoard.hasAnyRookConflictsOn(rowIndex, i)) {
-        if (rowIndex === n - 1) {
-          solutions.push(testBoard.rows().map(function(arr) {
-            return arr.slice();
-          }));
-        } else {
-          iterateRow(rowIndex + 1);
-        }
-      }
-      testBoard.togglePiece(rowIndex, i);
-    }
-  };
-  iterateRow(0);
-  if (solutions.length === 0) { return new Board({n: n}).rows(); }
-  return solutions;
-};
-
-window.findAllQueenSolutions = function (n) {
-  var solutions = [];
-  var testBoard = new Board({n: n});
-
-  var iterateRow = function (rowIndex) {
-    for (var i = 0; i < n; i++) {
-      testBoard.togglePiece(rowIndex, i);
-      if (!testBoard.hasAnyQueenConflictsOn(rowIndex, i)) {
-        if (rowIndex === n - 1) {
-          solutions.push(testBoard.rows().map(function(arr) {
-            return arr.slice();
-          }));
-        } else {
-          iterateRow(rowIndex + 1);
-        }
-      }
-      testBoard.togglePiece(rowIndex, i);
-    }
-  };
-  iterateRow(0);
-  if (solutions.length === 0) { return new Board({n: n}).rows(); }
-  return solutions;
-};
-
-window.iterateRow = function (rowIndex, n, board, solutions, callback) {
-  for (var i = 0; i < n; i++) {
+var iterateRow = function (rowIndex, n1, board, sols, callback) {
+  for (var i = 0; i < n1; i++) {
     board.togglePiece(rowIndex, i);
     if (!callback(rowIndex, i)) {
-      if (rowIndex === n - 1) {
-        solutions.push(board.rows().map(function(arr) {
+      if (rowIndex === n1 - 1) {
+        sols.push(board.rows().map(function(arr) {
           return arr.slice();
         }));
       } else {
-        iterateRow(rowIndex + 1);
+        iterateRow(rowIndex + 1, n1, board, sols, callback);
       }
     }
     board.togglePiece(rowIndex, i);
   }
 };
 
-// var iterateRow = function (rowIndex, hasConflictCB) {
-//   for (var i = 0; i < n; i++) {
-//     testBoard.togglePiece(rowIndex, i);
-//     if (!hasConflictCB(rowIndex, i)) {
-//       if (rowIndex === n - 1) {
-//         solutions.push(testBoard.rows().map(function(arr) {
-//           return arr.slice();
-//         }));
-//       } else {
-//         iterateRow(rowIndex + 1, hasConflictCB);
-//       }
-//     }
-//     testBoard.togglePiece(rowIndex, i);
-//   }
-// };
+
