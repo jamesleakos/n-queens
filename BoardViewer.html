@@ -47,7 +47,15 @@
           [0, 0, 1, 0]
         ]);
 
-        var n = 4;
+        var n = 8;
+
+        var rookSolutions = findAllRookSolutions(n);
+        var queenSolutions = findAllQueenSolutions(n);
+        for (let sol of queenSolutions) {
+          console.log(sol);
+          displayBoard(sol);
+        };
+
         findNRooksSolution(n);
         countNRooksSolutions(n);
         findNQueensSolution(n);
